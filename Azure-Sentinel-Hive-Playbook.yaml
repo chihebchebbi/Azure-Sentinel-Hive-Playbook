@@ -29,11 +29,11 @@
                                 "type": "external"
                             },
                             "headers": {
-                                "Authorization": "Bearer <THE HIVE API KEY HERE>",
+                                "Authorization": "Bearer <THEHIVE API KEY HERE>",
                                 "Content-Type": "application/json"
                             },
                             "method": "POST",
-                            "uri": "<THE HIVE URL HERE>:<THE HIVE PORT HERE>/api/alert"
+                            "uri": "<THEHIVE URL HERE>:<THEHIVE PORT HERE>/api/alert"
                         },
                         "runAfter": {},
                         "type": "Http"
