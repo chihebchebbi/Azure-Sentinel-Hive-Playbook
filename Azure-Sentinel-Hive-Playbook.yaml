@@ -1,0 +1,102 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Alert_-_Get_incident": {
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/Incidents/subscriptions/@{encodeURIComponent('<subscription id HERE>')}/resourceGroups/@{encodeURIComponent('<Resource Group here>')}/workspaces/@{encodeURIComponent('<Workspace ID here>')}/alerts/@{encodeURIComponent(triggerBody()?['SystemAlertId'])}"
+                },
+                "runAfter": {},
+                "type": "ApiConnection"
+            },
+            "Condition": {
+                "actions": {
+                    "HTTP": {
+                        "inputs": {
+                            "body": {
+                                "description": "@{body('Alert_-_Get_incident')?['properties']?['description']}",
+                                "severity": 3,
+                                "source": "Azure Sentinel",
+                                "sourceRef": "ref01",
+                                "status": " @{body('Alert_-_Get_incident')?['properties']?['status']}",
+                                "title": "@{body('Alert_-_Get_incident')?['properties']?['title']}",
+                                "type": "external"
+                            },
+                            "headers": {
+                                "Authorization": "Bearer <THE HIVE API KEY HERE>",
+                                "Content-Type": "application/json"
+                            },
+                            "method": "POST",
+                            "uri": "<THE HIVE URL HERE>:<THE HIVE PORT HERE>/api/alert"
+                        },
+                        "runAfter": {},
+                        "type": "Http"
+                    }
+                },
+                "expression": {
+                    "or": [
+                        {
+                            "equals": [
+                                "@body('Alert_-_Get_incident')?['properties']?['severity']",
+                                "High"
+                            ]
+                        },
+                        {
+                            "equals": [
+                                "@body('Alert_-_Get_incident')?['properties']?['status']",
+                                "New"
+                            ]
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Alert_-_Get_incident": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "If"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "When_a_response_to_an_Azure_Sentinel_alert_is_triggered": {
+                "inputs": {
+                    "body": {
+                        "callback_url": "@{listCallbackUrl()}"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                        }
+                    },
+                    "path": "/subscribe"
+                },
+                "type": "ApiConnectionWebhook"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "azuresentinel": {
+                    "connectionId": "/subscriptions/<Subscription ID HERE>/resourceGroups/playbooks/providers/Microsoft.Web/connections/<connectionName HERE>",
+                    "connectionName": "<connectionName HERE>",
+                    "id": "/subscriptions/<Subscription ID HERE>/providers/Microsoft.Web/locations/westus/managedApis/<connectionName HERE>"
+                }
+            }
+        }
+    }
+}
