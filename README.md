@@ -1,5 +1,5 @@
-# Azure Sentinel Hive Playbook
-This Azure Sentinel playbook sends High and New Incidents to The Hive incident management Platform
+# Azure Sentinel TheHive Playbook
+This Azure Sentinel playbook sends High and New Incidents to TheHive incident management Platform
 
 ![Logo](Az-hive.png)
 
